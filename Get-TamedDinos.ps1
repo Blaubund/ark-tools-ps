@@ -1,9 +1,12 @@
 # Examples:
 #
 #   .\Get-TamedDinos.ps1
+#   .\Get-TamedDinos.ps1 -Name Connor
+#   .\Get-TamedDinos.ps1 -Species Rex -MinLevel 100
 #
 # To do: 
 #   - Automatically detect where the ARK saved game files are as a default
+#   - Add -MaxLevel
 
 [CmdletBinding(SupportsShouldProcess=$true)]
 param(
@@ -15,6 +18,8 @@ param(
 
     [Parameter()]
     [string] $MinLevel,
+
+    [switch] $ShowTotalsOnly,
     
     [Parameter()]
     [string] $SavedGameFile,
@@ -89,6 +94,11 @@ foreach ($tamedFile in $tamedFiles)
 
     $tamedDinos = Get-Content $tamedFile.FullName -Raw | ConvertFrom-Json
     Write-Verbose "$($tamedDinos.Count) $dinoSpecies found total"
+
+    if ($ShowTotalsOnly -eq $true)
+    {
+        continue
+    }
 
     foreach ($tamedDino in $tamedDinos)
     {
