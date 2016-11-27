@@ -1,0 +1,11 @@
+# ark-tools exe, java, etc
+ark-tools.*
+ark_data.json
+
+# Output files produced by the scripts
+Tamed/
+Wild/
+
+# Misc.
+*.back
+*.txt
