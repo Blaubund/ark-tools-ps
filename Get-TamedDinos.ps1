@@ -6,7 +6,6 @@
 #
 # To do: 
 #   - Automatically detect where the ARK saved game files are as a default
-#   - Add -MaxLevel
 
 [CmdletBinding(SupportsShouldProcess=$true)]
 param(
@@ -17,9 +16,14 @@ param(
     [string] $Name,
 
     [Parameter()]
-    [string] $MinLevel,
+    [int] $MinLevel,
+
+    [Parameter()]
+    [int] $MaxLevel,
 
     [switch] $ShowTotalsOnly,
+
+    [switch] $ShowXYZ,
     
     [Parameter()]
     [string] $SavedGameFile,
@@ -32,7 +36,8 @@ param(
 
 $defaultSpecies = ".*"
 $defaultName = ".*"
-$defaultMinLevel = "1"
+$defaultMinLevel = 1
+$defaultMaxLevel = 99999
 $defaultSavedGameFile = "D:\SteamLibrary\steamapps\common\ARK\ShooterGame\Saved\SavedArksLocal\TheIsland.ark"
 $defaultDestinationFolder = "Tamed"
 
@@ -46,9 +51,14 @@ if ($Name -eq "")
     $Name = $defaultName
 }
 
-if ($MinLevel -eq "")
+if ($MinLevel -eq 0)
 {
     $MinLevel = $defaultMinLevel
+}
+
+if ($MaxLevel -eq 0)
+{
+    $MaxLevel = $defaultMaxLevel
 }
 
 if ($SavedGameFile -eq "")
@@ -64,10 +74,9 @@ if ($DestinationFolder -eq "")
 Write-Verbose "Species: $Species"
 Write-Verbose "Name: $Name"
 Write-Verbose "Min level: $MinLevel"
+Write-Verbose "Max level: $MaxLevel"
 Write-Verbose "Save game file: $SavedGameFile"
 Write-Verbose "Destination folder: $DestinationFolder"
-
-[int]$MinLevelInt = [convert]::ToInt16($MinLevel, 10)
 
 # Read raw saved game file using ark-tools.exe
 Write-Output "Extracting Tamed dino details..."
@@ -100,11 +109,11 @@ foreach ($tamedFile in $tamedFiles)
         continue
     }
 
-    foreach ($tamedDino in $tamedDinos)
+    foreach ($dino in $tamedDinos)
     {
         $colors = ""
 
-        $dinoName = $tamedDino.Name
+        $dinoName = $dino.Name
         if ($dinoName -eq "" -or $dinoName -eq $null)
         {
             $dinoName = "Unnamed"
@@ -114,12 +123,21 @@ foreach ($tamedFile in $tamedFiles)
             continue
         }
 
-        [int]$dinoBaseLevel = [convert]::ToInt16($tamedDino.baseLevel, 10)
-        [int]$dinoLevel = [convert]::ToInt16($tamedDino.fullLevel, 10)
-        if ($dinoLevel -ge $MinLevelInt)
+        [int]$dinoBaseLevel = [convert]::ToInt16($dino.baseLevel, 10)
+
+        if ($dino.fullLevel -ne "" -and $dino.fullLevel -ne $null)
+        {
+            [int]$dinoLevel = [convert]::ToInt16($dino.fullLevel, 10)
+        }
+        else
+        {
+            [int]$dinoLevel = 0;
+        }
+
+        if ($dinoLevel -ge $MinLevel -and $dinoLevel -le $MaxLevel)
         {
  
-            $colorsUsed = Get-Member -InputObject $tamedDino -MemberType Properties -Name color* | Select-Object Name
+            $colorsUsed = Get-Member -InputObject $dino -MemberType Properties -Name color* | Select-Object Name
                         
             foreach ($color in $colorsUsed)
             {
@@ -128,10 +146,10 @@ foreach ($tamedFile in $tamedFiles)
                     $colors += ", "
                 }
 
-                $colors += $dinoColors[$tamedDino.$($color.Name)]
+                $colors += $dinoColors[$dino.$($color.Name)]
             }
 
-            if ($tamedDino.female -eq $true)
+            if ($dino.female -eq $true)
             {
                 $gender = "Female"
             }
@@ -139,8 +157,20 @@ foreach ($tamedFile in $tamedFiles)
             {
                 $gender = "Male"
             }
-          
-            Write-Output "$dinoName, Level $dinoLevel ($dinoBaseLevel) $gender lat $($tamedDino.lat), lon $($tamedDino.lon) (H: $($tamedDino.wildLevels.health) S: $($tamedDino.wildLevels.stamina) O: $($tamedDino.wildLevels.oxygen) F: $($tamedDino.wildLevels.food) W: $($tamedDino.wildLevels.weight) M: $($tamedDino.wildLevels.melee) S: $($tamedDino.wildLevels.speed)) {$colors}"
+
+            if ($ShowXYZ -eq $true)
+            {
+                $x = [math]::Round($dino.x)
+                $y = [math]::Round($dino.y)
+                $z = [math]::Round($dino.z)
+                $location =  "xyz $x $y $z"
+            }
+            else
+            {
+                $location = "lat $($dino.lat), lon $($dino.lon)"
+            }
+            
+            Write-Output "$dinoName, Level $dinoLevel ($dinoBaseLevel) $gender $location (H: $($dino.wildLevels.health) S: $($dino.wildLevels.stamina) O: $($dino.wildLevels.oxygen) F: $($dino.wildLevels.food) W: $($dino.wildLevels.weight) M: $($dino.wildLevels.melee) S: $($dino.wildLevels.speed)) {$colors}"
         }
     }
 }
