@@ -1,14 +1,13 @@
 # Examples:
 #
+#   .\Get-WildDinos.ps1
 #   .\Get-WildDinos.ps1 -MinLevel 116
 #   .\Get-WildDinos.ps1 -FindAlphas
-#   .\Get-WildDinos.ps1 -MinLevel 1 -ShowTotalsOnly
 #   .\Get-WildDinos.ps1 -ShowTotalsOnly
 #
 # To do: 
 #   - Automatically detect where the ARK saved game files are as a default
 #   - Search for specific colors
-#   - Add -MaxLevel
 
 [CmdletBinding(SupportsShouldProcess=$true)]
 param(
@@ -16,11 +15,16 @@ param(
     [string] $Species,
 
     [Parameter()]
-    [string] $MinLevel,
+    [int] $MinLevel,
+
+    [Parameter()]
+    [int] $MaxLevel,
 
     [switch] $FindAlphas,
 
     [switch] $ShowTotalsOnly,
+
+    [switch] $ShowXYZ,
 
     [Parameter()]
     [string] $SavedGameFile,
@@ -32,7 +36,8 @@ param(
 . ".\DinoColors.ps1"
 
 $defaultSpecies = ".*"
-$defaultMinLevel = "112"
+$defaultMinLevel = 112
+$defaultMaxLevel = 99999
 $defaultSavedGameFile = "D:\SteamLibrary\steamapps\common\ARK\ShooterGame\Saved\SavedArksLocal\TheIsland.ark"
 $defaultDestinationFolder = "Wild"
 
@@ -54,9 +59,20 @@ if ($Species -eq "")
     $Species = $defaultSpecies
 }
 
-if ($MinLevel -eq "")
+# Special case where user is looking for dinos below a specific level and the default MinLevel will be wrong
+if ($MinLevel -eq 0 -and $MaxLevel -ne 0)
+{
+    $MinLevel = 1
+}
+
+if ($MinLevel -eq 0)
 {
     $MinLevel = $defaultMinLevel
+}
+
+if ($MaxLevel -eq 0)
+{
+    $MaxLevel = $defaultMaxLevel
 }
 
 if ($SavedGameFile -eq "")
@@ -69,12 +85,17 @@ if ($DestinationFolder -eq "")
     $DestinationFolder = $defaultDestinationFolder
 }
 
-Write-Verbose "Save game file: $SavedGameFile"
-Write-Verbose "Destination folder: $DestinationFolder"
+if ($MaxLevel -lt $MinLevel)
+{
+    Write-Error "MaxLevel is less than MinLevel"
+    exit
+}
+
 Write-Verbose "Dino Type: $Species"
 Write-Verbose "Min level: $MinLevel"
-
-[int]$MinLevelInt = [convert]::ToInt16($MinLevel, 10)
+Write-Verbose "Max level: $MaxLevel"
+Write-Verbose "Save game file: $SavedGameFile"
+Write-Verbose "Destination folder: $DestinationFolder"
 
 # Read raw saved game file using ark-tools.exe
 Write-Output "Extracting wild dino details..."
@@ -104,22 +125,22 @@ foreach ($wildFile in $wildFiles)
     Write-Verbose $dinoName
 
     $wildDinos = Get-Content $wildFile.FullName -Raw | ConvertFrom-Json
-    Write-Output "$($wildDinos.Count) $($dinoName)s found"
+    Write-Output "$($wildDinos.Count) $($dinoName)s exist"
 
     if ($ShowTotalsOnly -eq $true)
     {
         continue
     }
 
-    foreach ($wildDino in $WildDinos)
+    foreach ($dino in $WildDinos)
     {
         $colors = ""
 
-        [int]$dinoLevel = [convert]::ToInt16($wildDino.baseLevel, 10)
-        if ($dinoLevel -ge $MinLevelInt)
+        [int]$dinoLevel = [convert]::ToInt16($dino.baseLevel, 10)
+        if ($dinoLevel -ge $MinLevel -and $dinoLevel -le $MaxLevel)
         {
  
-            $colorsUsed = Get-Member -InputObject $wildDino -MemberType Properties -Name color* | Select-Object Name
+            $colorsUsed = Get-Member -InputObject $dino -MemberType Properties -Name color* | Select-Object Name
                         
             foreach ($color in $colorsUsed)
             {
@@ -128,10 +149,10 @@ foreach ($wildFile in $wildFiles)
                     $colors += ", "
                 }
 
-                $colors += $dinoColors[$wildDino.$($color.Name)]
+                $colors += $dinoColors[$dino.$($color.Name)]
             }
 
-            if ($wildDino.female -eq $true)
+            if ($dino.female -eq $true)
             {
                 $gender = "Female"
             }
@@ -140,7 +161,19 @@ foreach ($wildFile in $wildFiles)
                 $gender = "Male"
             }
 
-            Write-Output "Level $dinoLevel $gender lat $($wildDino.lat), lon $($wildDino.lon) (H: $($wildDino.wildLevels.health) S: $($wildDino.wildLevels.stamina) O: $($wildDino.wildLevels.oxygen) F: $($wildDino.wildLevels.food) W: $($wildDino.wildLevels.weight) M: $($wildDino.wildLevels.melee) S: $($wildDino.wildLevels.speed)) {$colors}"
+            if ($ShowXYZ -eq $true)
+            {
+                $x = [math]::Round($dino.x)
+                $y = [math]::Round($dino.y)
+                $z = [math]::Round($dino.z)
+                $location =  "xyz $x $y $z"
+            }
+            else
+            {
+                $location = "lat $($dino.lat), lon $($dino.lon)"
+            }
+
+            Write-Output "Level $dinoLevel $gender $location (H: $($dino.wildLevels.health) S: $($dino.wildLevels.stamina) O: $($dino.wildLevels.oxygen) F: $($dino.wildLevels.food) W: $($dino.wildLevels.weight) M: $($dino.wildLevels.melee) S: $($dino.wildLevels.speed)) {$colors}"
         }
     }
 }
