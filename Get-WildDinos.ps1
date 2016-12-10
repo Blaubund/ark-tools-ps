@@ -8,11 +8,15 @@
 # To do: 
 #   - Automatically detect where the ARK saved game files are as a default
 #   - Search for specific colors
+#   - Automatically create destination folder if it doesn't exist
 
 [CmdletBinding(SupportsShouldProcess=$true)]
 param(
     [Parameter()]
     [string] $Species,
+
+    [Parameter()]
+    [string] $Gender,
 
     [Parameter()]
     [int] $MinLevel,
@@ -59,6 +63,18 @@ if ($Species -eq "")
     $Species = $defaultSpecies
 }
 
+if ($Gender -ne "")
+{
+    if ($Gender -match "^f")
+    {
+        $Gender = "Female"
+    }
+    else
+    {
+        $Gender = "Male"
+    }
+}
+
 # Special case where user is looking for dinos below a specific level and the default MinLevel will be wrong
 if ($MinLevel -eq 0 -and $MaxLevel -ne 0)
 {
@@ -91,7 +107,8 @@ if ($MaxLevel -lt $MinLevel)
     exit
 }
 
-Write-Verbose "Dino Type: $Species"
+Write-Verbose "Species: $Species"
+Write-Verbose "Gender: $Gender"
 Write-Verbose "Min level: $MinLevel"
 Write-Verbose "Max level: $MaxLevel"
 Write-Verbose "Save game file: $SavedGameFile"
@@ -137,43 +154,50 @@ foreach ($wildFile in $wildFiles)
         $colors = ""
 
         [int]$dinoLevel = [convert]::ToInt16($dino.baseLevel, 10)
-        if ($dinoLevel -ge $MinLevel -and $dinoLevel -le $MaxLevel)
+
+        if ($dinoLevel -lt $MinLevel -or $dinoLevel -gt $MaxLevel)
         {
- 
-            $colorsUsed = Get-Member -InputObject $dino -MemberType Properties -Name color* | Select-Object Name
-                        
-            foreach ($color in $colorsUsed)
-            {
-                if ($colors -ne "")
-                {
-                    $colors += ", "
-                }
-
-                $colors += $dinoColors[$dino.$($color.Name)]
-            }
-
-            if ($dino.female -eq $true)
-            {
-                $gender = "Female"
-            }
-            else
-            {
-                $gender = "Male"
-            }
-
-            if ($ShowXYZ -eq $true)
-            {
-                $x = [math]::Round($dino.x)
-                $y = [math]::Round($dino.y)
-                $z = [math]::Round($dino.z)
-                $location =  "xyz $x $y $z"
-            }
-            else
-            {
-                $location = "lat $($dino.lat), lon $($dino.lon)"
-            }
-
-            Write-Output "Level $dinoLevel $gender $location (H: $($dino.wildLevels.health) S: $($dino.wildLevels.stamina) O: $($dino.wildLevels.oxygen) F: $($dino.wildLevels.food) W: $($dino.wildLevels.weight) M: $($dino.wildLevels.melee) S: $($dino.wildLevels.speed)) {$colors}"
+            continue
         }
+
+        if ($dino.female -eq $true)
+        {
+            $dinoGender = "Female"
+        }
+        else
+        {
+            $DinoGender = "Male"
+        }
+
+        if ($Gender -ne "" -and $Gender -ne $dinoGender)
+        {
+            continue
+        }
+
+        $colorsUsed = Get-Member -InputObject $dino -MemberType Properties -Name color* | Select-Object Name
+                        
+        foreach ($color in $colorsUsed)
+        {
+            if ($colors -ne "")
+            {
+                $colors += ", "
+            }
+
+            $colors += $dinoColors[$dino.$($color.Name)]
+        }
+
+        if ($ShowXYZ -eq $true)
+        {
+            $x = [math]::Round($dino.x)
+            $y = [math]::Round($dino.y)
+            $z = [math]::Round($dino.z)
+            $location =  "xyz $x $y $z"
+        }
+        else
+        {
+            $location = "lat $($dino.lat), lon $($dino.lon)"
+        }
+
+        Write-Output "Level $dinoLevel $dinoGender $location (H: $($dino.wildLevels.health) S: $($dino.wildLevels.stamina) O: $($dino.wildLevels.oxygen) F: $($dino.wildLevels.food) W: $($dino.wildLevels.weight) M: $($dino.wildLevels.melee) S: $($dino.wildLevels.speed)) {$colors}"
     }
 }
