@@ -5,6 +5,7 @@ ark_data.json
 # Output files produced by the scripts
 Tamed/
 Wild/
+Old/
 
 # Misc.
 *.back

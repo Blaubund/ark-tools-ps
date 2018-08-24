@@ -7,8 +7,10 @@
 #
 # To do: 
 #   - Automatically detect where the ARK saved game files are as a default
-#   - Search for specific colors
+#   - Search for specific colors (did I do this already?)
 #   - Automatically create destination folder if it doesn't exist
+#   - Provide map name defaults for each main map (i.e. Ragnarok, Scorched Earth, etc)
+#   - Mega is used to find alphas, but this now matches Megatheriums
 
 [CmdletBinding(SupportsShouldProcess=$true)]
 param(
@@ -40,9 +42,11 @@ param(
 . ".\DinoColors.ps1"
 
 $defaultSpecies = ".*"
-$defaultMinLevel = 112
+$defaultMinLevel = 130
 $defaultMaxLevel = 99999
-$defaultSavedGameFile = "D:\SteamLibrary\steamapps\common\ARK\ShooterGame\Saved\SavedArksLocal\TheIsland.ark"
+#$defaultSavedGameFile = "D:\SteamLibrary\steamapps\common\ARK\ShooterGame\Saved\SavedArksLocal\TheIsland.ark"
+$defaultSavedGameFile = "D:\SteamLibrary\steamapps\common\ARK\ShooterGame\Saved\ScorchedEarth_PSavedArksLocal\ScorchedEarth_P.ark"
+#$defaultSavedGameFile = "D:\SteamLibrary\steamapps\common\ARK\ShooterGame\Saved\RagnarokSavedArksLocal\Ragnarok.ark"
 $defaultDestinationFolder = "Wild"
 
 if ($FindAlphas -eq $true)
@@ -162,11 +166,11 @@ foreach ($wildFile in $wildFiles)
 
         if ($dino.female -eq $true)
         {
-            $dinoGender = "Female"
+            $dinoGender = "F"
         }
         else
         {
-            $DinoGender = "Male"
+            $DinoGender = "M"
         }
 
         if ($Gender -ne "" -and $Gender -ne $dinoGender)
@@ -174,29 +178,49 @@ foreach ($wildFile in $wildFiles)
             continue
         }
 
-        $colorsUsed = Get-Member -InputObject $dino -MemberType Properties -Name color* | Select-Object Name
-                        
-        foreach ($color in $colorsUsed)
+#        $colorsUsed = Get-Member -InputObject $dino -MemberType Properties -Name color* | Select-Object Name
+#                        
+#        foreach ($color in $colorsUsed)
+#        {
+####            if ($colors -ne "")
+#            {
+#                $colors += ", "
+#            }
+#
+#            $colors += $dinoColors[$dino.$($color.Name)]
+#        }
+
+        $colorRegions = Get-Member -InputObject $dino.colorSetIndices -MemberType NoteProperty | Select-Object -ExpandProperty Name
+        Write-Verbose "Color regions: $colorRegions"
+
+        foreach ($colorRegion in $colorRegions)
         {
+            $colorValue = $dino.colorSetIndices.$colorRegion
+            $colorName = $dinoColors[$colorValue]
+            Write-Verbose "   $colorRegion, Value: $colorValue ($colorName)"
+
             if ($colors -ne "")
             {
                 $colors += ", "
             }
-
-            $colors += $dinoColors[$dino.$($color.Name)]
+ 
+             $colors += $colorName
         }
 
         if ($ShowXYZ -eq $true)
         {
-            $x = [math]::Round($dino.x)
-            $y = [math]::Round($dino.y)
-            $z = [math]::Round($dino.z)
+            $x = [math]::Round($dino.location.x)
+            $y = [math]::Round($dino.location.y)
+            $z = [math]::Round($dino.location.z)
             $location =  "xyz $x $y $z"
         }
         else
         {
-            $location = "lat $($dino.lat), lon $($dino.lon)"
+            $lat = [math]::Round($dino.location.lat, 1)
+            $lon = [math]::Round($dino.location.lon, 1)
+            $location = "lat $lat, lon $lon"
         }
+        Write-Verbose "Location: $location"
 
         Write-Output "Level $dinoLevel $dinoGender $location (H: $($dino.wildLevels.health) S: $($dino.wildLevels.stamina) O: $($dino.wildLevels.oxygen) F: $($dino.wildLevels.food) W: $($dino.wildLevels.weight) M: $($dino.wildLevels.melee) S: $($dino.wildLevels.speed)) {$colors}"
     }
