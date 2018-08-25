@@ -2,16 +2,18 @@
 #
 #   .\Get-WildDinos.ps1
 #   .\Get-WildDinos.ps1 -MinLevel 116
-#   .\Get-WildDinos.ps1 -FindAlphas
+#   .\Get-WildDinos.ps1 -AlphasOnly
+#   .\Get-WildDinos.ps1 -Species Argent
+#   .\Get-WildDinos.ps1 -Species Rex -AlphasOnly
 #   .\Get-WildDinos.ps1 -ShowTotalsOnly
 #
 # To do: 
 #   - Automatically detect where the ARK saved game files are as a default
-#   - Search for specific colors (did I do this already?)
 #   - Automatically create destination folder if it doesn't exist
-#   - Mega is used to find alphas, but this now matches Megatheriums
+#   - Clear out the working folder before running ark-tools.exe
+#   - Search for specific colors (did I do this already?)
 #   - Find dinos near me (or near my dino)
-#   - Process classes.json instead of using file name for dino name
+
 
 [CmdletBinding(SupportsShouldProcess=$true)]
 param(
@@ -30,7 +32,7 @@ param(
     [Parameter()]
     [int] $MaxLevel,
 
-    [switch] $FindAlphas,
+    [switch] $AlphasOnly,
 
     [switch] $ShowTotalsOnly,
 
@@ -51,15 +53,11 @@ if ($Map -eq "")
     $Map = $defaultMap
 }
 
-if ($FindAlphas -eq $true)
+if ($AlphasOnly -eq $true)
 {
-    if ($Species -ne "")
-    {
-        Write-Warning "Species overridden to 'Mega' to find just alphas"
-    }
-    $Species = "Mega"
     if ($MinLevel -eq "")
     {
+        Write-Verbose "Adjusting min level to 1 for alpha hunting"
         $MinLevel = 1
     }
 }
@@ -125,38 +123,47 @@ Write-Verbose "Destination folder: $DestinationFolder"
 Write-Output "Extracting wild dino details..."
 .\ark-tools.exe wild $SavedGameFile $DestinationFolder
 
-# Get a list of the files created
-$wildFiles = Get-ChildItem -Path $DestinationFolder
-Write-Verbose "$($wildFiles.Count) Wild Dinosaur files read..."
-
-foreach ($wildFile in $wildFiles)
+# Read the Classes file
+$classFile = "$DestinationFolder\classes.json"
+$dinoClasses = Get-Content $classfile -Raw | ConvertFrom-Json
+Write-Verbose "$($dinoClasses.Count) dino classes exist"
+foreach ($class in $dinoClasses)
 {
-    $dinoName = $wildFile.Name -split "_Character" | Select-Object -First 1
+    $dinoClass = $class.cls
+    $dinoName = $class.Name
+    $dinoFile = "$dinoClass.json"
 
-    if ($dinoName -match "json")
+    if ($dinoName -match "_Character")
     {
-        continue
-    }
-    elseif ($dinoName -notmatch $Species)
-    {
-        continue
-    }
-    elseif ($dinoName -match "Megalodon" -and $FindAlphas -eq $true)
-    {
-        continue
+        $dinoName = $dinoName -split "_Character" | Select-Object -First 1
     }
 
-    Write-Verbose $dinoName
+    Write-Verbose "Class: $dinoClass, Name: $dinoName, File: $dinoFile"
 
-    $wildDinos = Get-Content $wildFile.FullName -Raw | ConvertFrom-Json
-    Write-Output "$($wildDinos.Count) $($dinoName)s exist"
+    if ($dinoName -notmatch $Species)
+    {
+        Write-Verbose "Species not a match, skipping..."
+        continue
+    }
+    elseif ($AlphasOnly -eq $true -and $dinoName -notmatch "Alpha")
+    {
+        Write-Verbose "Not an alpha, skipping..."
+        continue
+    }
+
+    Write-Output ""
+    Write-Output "$dinoName"
+    Write-Output "------------------------------------"
+
+    $wildDinos = Get-Content "$DestinationFolder\$dinoFile" -Raw | ConvertFrom-Json
+    Write-Verbose "$($wildDinos.Count) $dinoName found total"
 
     if ($ShowTotalsOnly -eq $true)
     {
         continue
     }
 
-    foreach ($dino in $WildDinos)
+    foreach ($dino in $wildDinos)
     {
         $colors = ""
 
@@ -180,18 +187,6 @@ foreach ($wildFile in $wildFiles)
         {
             continue
         }
-
-#        $colorsUsed = Get-Member -InputObject $dino -MemberType Properties -Name color* | Select-Object Name
-#                        
-#        foreach ($color in $colorsUsed)
-#        {
-####            if ($colors -ne "")
-#            {
-#                $colors += ", "
-#            }
-#
-#            $colors += $dinoColors[$dino.$($color.Name)]
-#        }
 
         $colorRegions = Get-Member -InputObject $dino.colorSetIndices -MemberType NoteProperty | Select-Object -ExpandProperty Name
         Write-Verbose "Color regions: $colorRegions"

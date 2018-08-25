@@ -1,6 +1,5 @@
 # Examples:
 #
-#   ./get
 #   .\Get-TamedDinos.ps1 -Name Connor
 #   .\Get-TamedDinos.ps1 -Species Rex -MinLevel 100
 #   .\Get-TamedDinos.ps1 -Species Saber -Gender Female
@@ -8,46 +7,13 @@
 # To do: 
 #   - Automatically detect where the ARK saved game files are as a default
 #   - Automatically create destination folder if it doesn't exist
-#   - Provide map name defaults for each main map (i.e. Ragnarok, Scorched Earth, etc)
-#   - Process classes.json instead of using file name for dino name
+#   - Clear out the working folder before running ark-tools.exe
 #   - Add filter for:
 #      o Owner
 #      o Base Level
 #      o Wild levels in various stats
 #      o Imprinter
 #      o Imprinting quality
-
-# This might be useful
-#PS C:\Users\Rand\repos\Blaubund\git-tools-ps> $dino = Get-Content ".\tamed\Wyvern_Character_BP_Poison_C.json" -Raw | ConvertFrom-Json
-#PS C:\Users\Rand\repos\Blaubund\git-tools-ps> $dino
-
-
-#allowLevelUps          : True
-#baseLevel              : 175
-#colorSetIndices        : @{0=8; 1=26; 2=8; 3=45; 4=25; 5=8}
-#experience             : 33936.07
-#extraLevel             : 62
-#id                     : 1724025659628489529
-#imprinter              : Cranius
-#imprintingQuality      : 1.0
-#lastEnterStasisTime    : 61855.2421875
-#location               : @{x=173291.17; y=-13879.553; z=-7751.4106; lat=48.265057; lon=71.66139}
-#myInventoryComponent   : 195
-#name                   : Caustic
-#ownerName              : Cranius
-#playerId               : 862478282
-#requiredTameAffinity   : 16750.0
-#tamed                  : True
-#tamedLevels            : @{health=14; stamina=29; weight=13; melee=6}
-#tamedOnServerName      : ARK #808716
-#tamer                  : Cranius
-#tamingEffectivness     : 1.0
-#tamingTeamID           : 862478282
-#team                   : 862478282
-#type                   : Poison Wyvern
-#uploadedFromServerName :
-#                         ARK #808716
-#wildLevels             : @{health=26; stamina=37; oxygen=37; food=28; weight=19; melee=27}
 
 [CmdletBinding(SupportsShouldProcess=$true)]
 param(
@@ -140,33 +106,38 @@ Write-Verbose "Save game file: $SavedGameFile"
 Write-Verbose "Destination folder: $DestinationFolder"
 
 # Read raw saved game file using ark-tools.exe
-Write-Output "Extracting Tamed dino details..."
+Write-Output "Extracting tamed dino details..."
 .\ark-tools.exe tamed $SavedGameFile $DestinationFolder
 
-# Get a list of the files created
-$tamedFiles = Get-ChildItem -Path $DestinationFolder
-Write-Verbose "$($tamedFiles.Count) Tamed Dinosaur files read..."
-
-foreach ($tamedFile in $tamedFiles)
+# Read the Classes file
+$classFile = "$($DestinationFolder)\classes.json"
+$dinoClasses = Get-Content $classfile -Raw | ConvertFrom-Json
+Write-Verbose "$($dinoClasses.Count) dino classes exist"
+foreach ($class in $dinoClasses)
 {
-    $dinoSpecies = $tamedFile.Name -split "_Character" | Select-Object -First 1
+    $dinoClass = $class.cls
+    $dinoName = $class.Name
+    $dinoFile = "$dinoClass.json"
 
-    if ($dinoSpecies -match "json")
+    if ($dinoName -match "_Character")
     {
-        Write-Verbose "Skipping file $dinoSpecies"
-        continue
-    }
-    elseif ($dinoSpecies -notmatch $Species)
-    {
-        Write-Verbose "Skipping dino $dinoSpecies"
-        continue
+        $dinoName = $dinoName -split "_Character" | Select-Object -First 1
     }
 
-    Write-Output $dinoSpecies
+    Write-Verbose "Class: $dinoClass, Name: $dinoName, File: $dinoFile"
+
+    if ($dinoName -notmatch $Species)
+    {
+        Write-Verbose "Species not a match, skipping..."
+        continue
+    }
+
+    Write-Output ""
+    Write-Output "$dinoName"
     Write-Output "------------------------------------"
 
-    $tamedDinos = Get-Content $tamedFile.FullName -Raw | ConvertFrom-Json
-    Write-Verbose "$($tamedDinos.Count) $dinoSpecies found total"
+    $tamedDinos = Get-Content "$DestinationFolder\$dinoFile" -Raw | ConvertFrom-Json
+    Write-Verbose "$($tamedDinos.Count) $dinoName found total"
 
     if ($ShowTotalsOnly -eq $true)
     {
@@ -210,20 +181,6 @@ foreach ($tamedFile in $tamedFiles)
             continue
         }
  
-        # This appears to have changed
-#       $colorsUsed = Get-Member -InputObject $dino -MemberType Properties -Name color* | Select-Object Name
-#       Write-Verbose "Colors used: $colorsUsed"
-#                       
-#       foreach ($color in $colorsUsed)
-#       {
-#           if ($colors -ne "")
-#           {
-#               $colors += ", "
-#           }
-#
-#            $colors += $dinoColors[$dino.$($color.Name)]
-#        }
-
         $colorRegions = Get-Member -InputObject $dino.colorSetIndices -MemberType NoteProperty | Select-Object -ExpandProperty Name
         Write-Verbose "Color regions: $colorRegions"
 
