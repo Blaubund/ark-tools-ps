@@ -9,6 +9,7 @@
 #   - Automatically detect where the ARK saved game files are as a default
 #   - Automatically create destination folder if it doesn't exist
 #   - Provide map name defaults for each main map (i.e. Ragnarok, Scorched Earth, etc)
+#   - Process classes.json instead of using file name for dino name
 #   - Add filter for:
 #      o Owner
 #      o Base Level

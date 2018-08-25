@@ -11,6 +11,8 @@
 #   - Automatically create destination folder if it doesn't exist
 #   - Provide map name defaults for each main map (i.e. Ragnarok, Scorched Earth, etc)
 #   - Mega is used to find alphas, but this now matches Megatheriums
+#   - Find dinos near me (or near my dino)
+#   - Process classes.json instead of using file name for dino name
 
 [CmdletBinding(SupportsShouldProcess=$true)]
 param(
@@ -45,8 +47,8 @@ $defaultSpecies = ".*"
 $defaultMinLevel = 130
 $defaultMaxLevel = 99999
 #$defaultSavedGameFile = "D:\SteamLibrary\steamapps\common\ARK\ShooterGame\Saved\SavedArksLocal\TheIsland.ark"
-$defaultSavedGameFile = "D:\SteamLibrary\steamapps\common\ARK\ShooterGame\Saved\ScorchedEarth_PSavedArksLocal\ScorchedEarth_P.ark"
-#$defaultSavedGameFile = "D:\SteamLibrary\steamapps\common\ARK\ShooterGame\Saved\RagnarokSavedArksLocal\Ragnarok.ark"
+#$defaultSavedGameFile = "D:\SteamLibrary\steamapps\common\ARK\ShooterGame\Saved\ScorchedEarth_PSavedArksLocal\ScorchedEarth_P.ark"
+$defaultSavedGameFile = "D:\SteamLibrary\steamapps\common\ARK\ShooterGame\Saved\RagnarokSavedArksLocal\Ragnarok.ark"
 $defaultDestinationFolder = "Wild"
 
 if ($FindAlphas -eq $true)
