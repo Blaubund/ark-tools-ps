@@ -52,6 +52,9 @@
 [CmdletBinding(SupportsShouldProcess=$true)]
 param(
     [Parameter()]
+    [string] $Map,
+
+    [Parameter()]
     [string] $Species,
 
     [Parameter()]
@@ -77,16 +80,13 @@ param(
     [string] $DestinationFolder
 )
 
+. ".\Config.ps1"
 . ".\DinoColors.ps1"
 
-$defaultSpecies = ".*"
-$defaultName = ".*"
-$defaultMinLevel = 1
-$defaultMaxLevel = 99999
-#$defaultSavedGameFile = "C:\Users\Rand\desktop\TheIsland.ark"
-#$defaultSavedGameFile = "D:\SteamLibrary\steamapps\common\ARK\ShooterGame\Saved\ScorchedEarth_PSavedArksLocal\ScorchedEarth_P.ark"
-$defaultSavedGameFile = "D:\SteamLibrary\steamapps\common\ARK\ShooterGame\Saved\RagnarokSavedArksLocal\Ragnarok.ark"
-$defaultDestinationFolder = "Tamed"
+if ($Map -eq "")
+{
+    $Map = $defaultMap
+}
 
 if ($Species -eq "")
 {
@@ -122,7 +122,7 @@ if ($MaxLevel -eq 0)
 
 if ($SavedGameFile -eq "")
 {
-    $SavedGameFile = $defaultSavedGameFile
+    $SavedGameFile = $defaultSaveFiles[$Map]
 }
 
 if ($DestinationFolder -eq "")
@@ -130,6 +130,7 @@ if ($DestinationFolder -eq "")
     $DestinationFolder = $defaultDestinationFolder
 }
 
+Write-Verbose "Map: $Map"
 Write-Verbose "Species: $Species"
 Write-Verbose "Name: $Name"
 Write-Verbose "Gender: $Gender"

@@ -9,13 +9,15 @@
 #   - Automatically detect where the ARK saved game files are as a default
 #   - Search for specific colors (did I do this already?)
 #   - Automatically create destination folder if it doesn't exist
-#   - Provide map name defaults for each main map (i.e. Ragnarok, Scorched Earth, etc)
 #   - Mega is used to find alphas, but this now matches Megatheriums
 #   - Find dinos near me (or near my dino)
 #   - Process classes.json instead of using file name for dino name
 
 [CmdletBinding(SupportsShouldProcess=$true)]
 param(
+    [Parameter()]
+    [string] $Map,
+
     [Parameter()]
     [string] $Species,
 
@@ -41,15 +43,13 @@ param(
     [string] $DestinationFolder
 )
 
+. ".\Config.ps1"
 . ".\DinoColors.ps1"
 
-$defaultSpecies = ".*"
-$defaultMinLevel = 130
-$defaultMaxLevel = 99999
-#$defaultSavedGameFile = "D:\SteamLibrary\steamapps\common\ARK\ShooterGame\Saved\SavedArksLocal\TheIsland.ark"
-#$defaultSavedGameFile = "D:\SteamLibrary\steamapps\common\ARK\ShooterGame\Saved\ScorchedEarth_PSavedArksLocal\ScorchedEarth_P.ark"
-$defaultSavedGameFile = "D:\SteamLibrary\steamapps\common\ARK\ShooterGame\Saved\RagnarokSavedArksLocal\Ragnarok.ark"
-$defaultDestinationFolder = "Wild"
+if ($Map -eq "")
+{
+    $Map = $defaultMap
+}
 
 if ($FindAlphas -eq $true)
 {
@@ -99,7 +99,7 @@ if ($MaxLevel -eq 0)
 
 if ($SavedGameFile -eq "")
 {
-    $SavedGameFile = $defaultSavedGameFile
+    $SavedGameFile = $defaultSaveFiles[$Map]
 }
 
 if ($DestinationFolder -eq "")
@@ -113,6 +113,7 @@ if ($MaxLevel -lt $MinLevel)
     exit
 }
 
+Write-Verbose "Map: $Map"
 Write-Verbose "Species: $Species"
 Write-Verbose "Gender: $Gender"
 Write-Verbose "Min level: $MinLevel"
