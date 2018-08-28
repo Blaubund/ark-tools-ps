@@ -71,11 +71,11 @@ if ($Gender -ne "")
 {
     if ($Gender -match "^f")
     {
-        $Gender = "Female"
+        $Gender = "F"
     }
     else
     {
-        $Gender = "Male"
+        $Gender = "M"
     }
 }
 

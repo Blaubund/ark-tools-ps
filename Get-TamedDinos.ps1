@@ -68,11 +68,11 @@ if ($Gender -ne "")
 {
     if ($Gender -match "^f")
     {
-        $Gender = "Female"
+        $Gender = "F"
     }
     else
     {
-        $Gender = "Male"
+        $Gender = "M"
     }
 }
 
@@ -201,11 +201,11 @@ foreach ($class in $dinoClasses)
         # This appears to no longer be available, but leaving it here in case it comes back
         if ($dino.female -eq $true)
         {
-            $dinoGender = "Female"
+            $dinoGender = "F"
         }
         else
         {
-            $dinoGender = "Male"
+            $dinoGender = "M"
         }
 
         if ($Gender -ne "" -and $Gender -ne $dinoGender)
