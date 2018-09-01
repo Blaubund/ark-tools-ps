@@ -6,6 +6,7 @@
 #   .\Get-WildDinos.ps1 -Species Argent
 #   .\Get-WildDinos.ps1 -Species Rex -AlphasOnly
 #   .\Get-WildDinos.ps1 -ShowTotalsOnly
+#   .\Get-WildDinos.ps1 -Species wolf -Map Aberration -MinHealthPoints 20
 #
 # To do: 
 #   - Automatically detect where the ARK saved game files are as a default
@@ -13,6 +14,7 @@
 #   - Clear out the working folder before running ark-tools.exe
 #   - Search for specific colors (did I do this already?)
 #   - Find dinos near me (or near my dino)
+#   - Search for minimum pre-tame stats (e.g. 20 points in Health)
 
 
 [CmdletBinding(SupportsShouldProcess=$true)]
@@ -31,6 +33,24 @@ param(
 
     [Parameter()]
     [int] $MaxLevel,
+
+    [Parameter()]
+    [int] $MinHealthPoints,
+
+    [Parameter()]
+    [int] $MinStaminaPoints,
+
+    [Parameter()]
+    [int] $MinOxygenPoints,
+
+    [Parameter()]
+    [int] $MinFoodPoints,
+
+    [Parameter()]
+    [int] $MinWeightPoints,
+
+    [Parameter()]
+    [int] $MinMeleePoints,
 
     [switch] $AlphasOnly,
 
@@ -172,6 +192,61 @@ foreach ($class in $dinoClasses)
         if ($dinoLevel -lt $MinLevel -or $dinoLevel -gt $MaxLevel)
         {
             continue
+        }
+
+        # Check minimum stats
+        if ($MinHealthPoints -ne "")
+        {
+            [int]$hp = [convert]::ToInt16($dino.wildLevels.health, 10)
+            if ($hp -lt $MinHealthPoints)
+            {
+                continue
+            }
+        }
+
+        if ($MinStaminaPoints -ne "")
+        {
+            [int]$sp = [convert]::ToInt16($dino.wildLevels.stamina, 10)
+            if ($sp -lt $MinStaminaPoints)
+            {
+                continue
+            }
+        }
+
+        if ($MinOxygenPoints -ne "")
+        {
+            [int]$op = [convert]::ToInt16($dino.wildLevels.oxygen, 10)
+            if ($op -lt $MinOxygenPoints)
+            {
+                continue
+            }
+        }
+
+        if ($MinFoodPoints -ne "")
+        {
+            [int]$fp = [convert]::ToInt16($dino.wildLevels.food, 10)
+            if ($fp -lt $MinFoodPoints)
+            {
+                continue
+            }
+        }
+
+        if ($MinWeightPoints -ne "")
+        {
+            [int]$wp = [convert]::ToInt16($dino.wildLevels.weight, 10)
+            if ($wp -lt $MinWeightPoints)
+            {
+                continue
+            }
+        }
+
+        if ($MinMeleePoints -ne "")
+        {
+            [int]$mp = [convert]::ToInt16($dino.wildLevels.melee, 10)
+            if ($mp -lt $MinMeleePoints)
+            {
+                continue
+            }
         }
 
         if ($dino.female -eq $true)
