@@ -1,6 +1,8 @@
 #$defaultMap = "Island"
 #$defaultMap = "SE"
-$defaultMap = "Ragnarok"
+#$defaultMap = "Ragnarok"
+#$defaultMap = "Center"
+$defaultMap = "Aberration"
 $defaultSpecies = ".*"
 $defaultMinLevel = 130
 $defaultMaxLevel = 99999

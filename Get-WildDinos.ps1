@@ -120,6 +120,12 @@ if ($SavedGameFile -eq "")
     $SavedGameFile = $defaultSaveFiles[$Map]
 }
 
+if ($SavedGameFile -eq "")
+{
+    Write-Error "Invalid map specified, aborting..."
+    exit
+}
+
 if ($DestinationFolder -eq "")
 {
     $DestinationFolder = $defaultDestinationFolder
