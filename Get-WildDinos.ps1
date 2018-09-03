@@ -128,7 +128,7 @@ if ($SavedGameFile -eq "")
 
 if ($DestinationFolder -eq "")
 {
-    $DestinationFolder = $defaultDestinationFolder
+    $DestinationFolder = $defaultWildDestinationFolder
 }
 
 if ($MaxLevel -lt $MinLevel)

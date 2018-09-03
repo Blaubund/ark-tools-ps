@@ -6,7 +6,8 @@ $defaultMap = "Aberration"
 $defaultSpecies = ".*"
 $defaultMinLevel = 130
 $defaultMaxLevel = 99999
-$defaultDestinationFolder = "Wild"
+$defaultWildDestinationFolder = "Wild"
+$defaultTamedDestinationFolder = "Tamed"
 
 $savedFolder = "D:\SteamLibrary\steamapps\common\ARK\ShooterGame\Saved\"
 

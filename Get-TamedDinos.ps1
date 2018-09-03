@@ -93,7 +93,7 @@ if ($SavedGameFile -eq "")
 
 if ($DestinationFolder -eq "")
 {
-    $DestinationFolder = $defaultDestinationFolder
+    $DestinationFolder = $defaultTamedDestinationFolder
 }
 
 Write-Verbose "Map: $Map"
