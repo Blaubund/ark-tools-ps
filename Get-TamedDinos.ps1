@@ -14,6 +14,7 @@
 #      o Wild levels in various stats
 #      o Imprinter
 #      o Imprinting quality
+#   - Change default minimum level to 1 (i.e. don't use the default wild filter)
 
 [CmdletBinding(SupportsShouldProcess=$true)]
 param(

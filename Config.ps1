@@ -4,6 +4,7 @@
 #$defaultMap = "Center"
 $defaultMap = "Aberration"
 $defaultSpecies = ".*"
+$defaultRange = 10
 $defaultMinLevel = 130
 $defaultMaxLevel = 99999
 $defaultWildDestinationFolder = "Wild"

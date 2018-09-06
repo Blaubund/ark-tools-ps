@@ -7,13 +7,13 @@
 #   .\Get-WildDinos.ps1 -Species Rex -AlphasOnly
 #   .\Get-WildDinos.ps1 -ShowTotalsOnly
 #   .\Get-WildDinos.ps1 -Species wolf -Map Aberration -MinHealthPoints 20
+#   .\Get-WildDinos.ps1 -Species raptor -NearDino Rocky -Range 20
 #
 # To do: 
 #   - Automatically detect where the ARK saved game files are as a default
 #   - Automatically create destination folder if it doesn't exist
 #   - Clear out the working folder before running ark-tools.exe
 #   - Search for specific colors (did I do this already?)
-#   - Find dinos near me (or near my dino)
 #   - Search for minimum pre-tame stats (e.g. 20 points in Health)
 
 
@@ -33,6 +33,12 @@ param(
 
     [Parameter()]
     [int] $MaxLevel,
+
+    [Parameter()]
+    [string] $NearDino,
+
+    [Parameter()]
+    [int] $Range,
 
     [Parameter()]
     [int] $MinHealthPoints,
@@ -99,6 +105,30 @@ if ($Gender -ne "")
     }
 }
 
+if ($NearDino -ne "")
+{
+    if ($Range -eq "")
+    {
+        $Range = $defaultRange
+    }
+
+    $dino = .\Get-TamedDinos.ps1 -Name $NearDino | where { $_ -match $NearDino }
+    if ($dino -ne $null)
+    {
+        Write-Verbose "Found dino $($NearDino):"
+        Write-Verbose "$dino"
+        $temp = $dino -match "lat (.*), lon (.*) \("
+        $nearLat = [math]::Round($matches[1], 1)
+        $nearLon = [math]::Round($matches[2], 1)
+        Write-Verbose "$nearLat, $nearLon"
+    }
+    else
+    {
+        Write-Output "Cannot find dino named $NearDino"
+        exit
+    }
+}
+
 # Special case where user is looking for dinos below a specific level and the default MinLevel will be wrong
 if ($MinLevel -eq 0 -and $MaxLevel -ne 0)
 {
@@ -140,6 +170,8 @@ if ($MaxLevel -lt $MinLevel)
 Write-Verbose "Map: $Map"
 Write-Verbose "Species: $Species"
 Write-Verbose "Gender: $Gender"
+Write-Verbose "Near Dino: $NearDino"
+Write-Verbose "Range: $Range"
 Write-Verbose "Min level: $MinLevel"
 Write-Verbose "Max level: $MaxLevel"
 Write-Verbose "Save game file: $SavedGameFile"
@@ -286,6 +318,28 @@ foreach ($class in $dinoClasses)
              $colors += $colorName
         }
 
+
+        $lat = [math]::Round($dino.location.lat, 1)
+        $lon = [math]::Round($dino.location.lon, 1)
+
+        if ($NearDino -ne "")
+        {
+            $diffLat = [math]::Abs($lat - $nearLat)
+            $diffLon = [math]::Abs($lon - $diffLon)
+            Write-Verbose "diffLat: $diffLat"
+            Write-Verbose "diffLon: $diffLon"
+            if ($diffLat  -gt $Range)
+            {
+                Write-Verbose "Latitude not within range of $NearDino"
+                continue
+            }
+            if ($diffLon -gt $Range)
+            {
+                Write-Verbose "Longitude not within range of $NearDino"
+                continue
+            }
+        }
+
         if ($ShowXYZ -eq $true)
         {
             $x = [math]::Round($dino.location.x)
@@ -295,8 +349,6 @@ foreach ($class in $dinoClasses)
         }
         else
         {
-            $lat = [math]::Round($dino.location.lat, 1)
-            $lon = [math]::Round($dino.location.lon, 1)
             $location = "lat $lat, lon $lon"
         }
         Write-Verbose "Location: $location"
