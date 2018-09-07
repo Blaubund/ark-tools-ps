@@ -301,23 +301,25 @@ foreach ($class in $dinoClasses)
             continue
         }
 
-        $colorRegions = Get-Member -InputObject $dino.colorSetIndices -MemberType NoteProperty | Select-Object -ExpandProperty Name
-        Write-Verbose "Color regions: $colorRegions"
-
-        foreach ($colorRegion in $colorRegions)
+        if ($dino.colorSetIndices -ne $null)
         {
-            $colorValue = $dino.colorSetIndices.$colorRegion
-            $colorName = $dinoColors[$colorValue]
-            Write-Verbose "   $colorRegion, Value: $colorValue ($colorName)"
+            $colorRegions = Get-Member -InputObject $dino.colorSetIndices -MemberType NoteProperty | Select-Object -ExpandProperty Name
+            Write-Verbose "Color regions: $colorRegions"
 
-            if ($colors -ne "")
+            foreach ($colorRegion in $colorRegions)
             {
-                $colors += ", "
-            }
- 
-             $colors += $colorName
-        }
+                $colorValue = $dino.colorSetIndices.$colorRegion
+                $colorName = $dinoColors[$colorValue]
+                Write-Verbose "   $colorRegion, Value: $colorValue ($colorName)"
 
+                if ($colors -ne "")
+                {
+                    $colors += ", "
+                }
+ 
+                 $colors += $colorName
+            }
+        }
 
         $lat = [math]::Round($dino.location.lat, 1)
         $lon = [math]::Round($dino.location.lon, 1)
