@@ -182,24 +182,26 @@ foreach ($class in $dinoClasses)
             continue
         }
  
-        $colorRegions = Get-Member -InputObject $dino.colorSetIndices -MemberType NoteProperty | Select-Object -ExpandProperty Name
-        Write-Verbose "Color regions: $colorRegions"
-
-        foreach ($colorRegion in $colorRegions)
+        if ($dino.colorSetIndices -ne $null)
         {
-            $colorValue = $dino.colorSetIndices.$colorRegion
-            $colorName = $dinoColors[$colorValue]
-            Write-Verbose "   $colorRegion, Value: $colorValue ($colorName)"
+            $colorRegions = Get-Member -InputObject $dino.colorSetIndices -MemberType NoteProperty | Select-Object -ExpandProperty Name
+            Write-Verbose "Color regions: $colorRegions"
 
-            if ($colors -ne "")
+            foreach ($colorRegion in $colorRegions)
             {
-                $colors += ", "
-            }
+                $colorValue = $dino.colorSetIndices.$colorRegion
+                $colorName = $dinoColors[$colorValue]
+                Write-Verbose "   $colorRegion, Value: $colorValue ($colorName)"
+
+                if ($colors -ne "")
+                {
+                    $colors += ", "
+                }
  
-             $colors += $colorName
+                 $colors += $colorName
+            }
         }
 
-        # This appears to no longer be available, but leaving it here in case it comes back
         if ($dino.female -eq $true)
         {
             $dinoGender = "F"
