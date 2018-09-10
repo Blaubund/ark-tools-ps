@@ -5,7 +5,8 @@
 $defaultMap = "Aberration"
 $defaultSpecies = ".*"
 $defaultRange = 10
-$defaultMinLevel = 130
+$defaultWildMinLevel = 130
+$defaultTamedMinLevel = 1
 $defaultMaxLevel = 99999
 $defaultWildDestinationFolder = "Wild"
 $defaultTamedDestinationFolder = "Tamed"

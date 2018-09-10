@@ -141,7 +141,7 @@ if ($MinLevel -eq 0 -and $MaxLevel -ne 0)
 
 if ($MinLevel -eq 0)
 {
-    $MinLevel = $defaultMinLevel
+    $MinLevel = $defaultWildMinLevel
 }
 
 if ($MaxLevel -eq 0)
@@ -174,10 +174,17 @@ if ($MaxLevel -lt $MinLevel)
 Write-Verbose "Map: $Map"
 Write-Verbose "Species: $Species"
 Write-Verbose "Gender: $Gender"
-Write-Verbose "Near Dino: $NearDino"
-Write-Verbose "Range: $Range"
 Write-Verbose "Min level: $MinLevel"
 Write-Verbose "Max level: $MaxLevel"
+Write-Verbose "Near Dino: $NearDino"
+Write-Verbose "Range: $Range"
+Write-Verbose "Min uber stat: $MinUberStat"
+Write-Verbose "Min health points: $MinHealthPoints"
+Write-Verbose "Min stamina points: $MinStaminaPoints"
+Write-Verbose "Min oxygen points: $MinOxygenPoints"
+Write-Verbose "Min food points: $MinFoodPoints"
+Write-Verbose "Min weight points: $MinWeightPoints"
+Write-Verbose "Min melee points: $MinMeleePoints"
 Write-Verbose "Save game file: $SavedGameFile"
 Write-Verbose "Destination folder: $DestinationFolder"
 

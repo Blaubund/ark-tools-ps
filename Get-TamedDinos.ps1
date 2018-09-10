@@ -3,6 +3,7 @@
 #   .\Get-TamedDinos.ps1 -Name Connor
 #   .\Get-TamedDinos.ps1 -Species Rex -MinLevel 100
 #   .\Get-TamedDinos.ps1 -Species Saber -Gender Female
+#   .\Get-TamedDinos.ps1 -Species lantern -MinUberStat 40
 #
 # To do: 
 #   - Automatically detect where the ARK saved game files are as a default
@@ -41,6 +42,27 @@ param(
 
     [Parameter()]
     [int] $Range,
+
+    [Parameter()]
+    [int] $MinUberStat,
+
+    [Parameter()]
+    [int] $MinHealthPoints,
+
+    [Parameter()]
+    [int] $MinStaminaPoints,
+
+    [Parameter()]
+    [int] $MinOxygenPoints,
+
+    [Parameter()]
+    [int] $MinFoodPoints,
+
+    [Parameter()]
+    [int] $MinWeightPoints,
+
+    [Parameter()]
+    [int] $MinMeleePoints,
 
     [switch] $ShowTotalsOnly,
 
@@ -109,7 +131,7 @@ if ($NearDino -ne "")
 
 if ($MinLevel -eq 0)
 {
-    $MinLevel = $defaultMinLevel
+    $MinLevel = $defaultTamedMinLevel
 }
 
 if ($MaxLevel -eq 0)
@@ -133,6 +155,15 @@ Write-Verbose "Name: $Name"
 Write-Verbose "Gender: $Gender"
 Write-Verbose "Min level: $MinLevel"
 Write-Verbose "Max level: $MaxLevel"
+Write-Verbose "Near Dino: $NearDino"
+Write-Verbose "Range: $Range"
+Write-Verbose "Min uber stat: $MinUberStat"
+Write-Verbose "Min health points: $MinHealthPoints"
+Write-Verbose "Min stamina points: $MinStaminaPoints"
+Write-Verbose "Min oxygen points: $MinOxygenPoints"
+Write-Verbose "Min food points: $MinFoodPoints"
+Write-Verbose "Min weight points: $MinWeightPoints"
+Write-Verbose "Min melee points: $MinMeleePoints"
 Write-Verbose "Save game file: $SavedGameFile"
 Write-Verbose "Destination folder: $DestinationFolder"
 
@@ -178,6 +209,7 @@ foreach ($class in $dinoClasses)
     foreach ($dino in $tamedDinos)
     {
         $colors = ""
+        $hasUberStat = $false
 
         $dinoName = $dino.Name
         Write-Verbose "Dino name: $dinoName"
@@ -212,6 +244,104 @@ foreach ($class in $dinoClasses)
             continue
         }
 
+        if ($MinUberStat -ne "")
+        {
+            [int]$hp = [convert]::ToInt16($dino.wildLevels.health, 10)
+            if ($hp -ge $MinUberStat)
+            {
+                $hasUberStat = $true
+            }
+
+            [int]$sp = [convert]::ToInt16($dino.wildLevels.stamina, 10)
+            if ($sp -ge $MinUberStat)
+            {
+                $hasUberStat = $true
+            }
+
+            [int]$op = [convert]::ToInt16($dino.wildLevels.oxygen, 10)
+            if ($op -ge $MinUberStat)
+            {
+                $hasUberStat = $true
+            }
+
+            [int]$fp = [convert]::ToInt16($dino.wildLevels.food, 10)
+            if ($fp -ge $MinUberStat)
+            {
+                $hasUberStat = $true
+            }
+
+            [int]$wp = [convert]::ToInt16($dino.wildLevels.weight, 10)
+            if ($wp -ge $MinUberStat)
+            {
+                $hasUberStat = $true
+            }
+
+            [int]$mp = [convert]::ToInt16($dino.wildLevels.melee, 10)
+            if ($mp -ge $MinUberStat)
+            {
+                $hasUberStat = $true
+            }
+
+            if ($hasUberStat -eq $false)
+            {
+                continue
+            }
+        }
+
+        # Check minimum stats
+        if ($MinHealthPoints -ne "")
+        {
+            [int]$hp = [convert]::ToInt16($dino.wildLevels.health, 10)
+            if ($hp -lt $MinHealthPoints)
+            {
+                continue
+            }
+        }
+
+        if ($MinStaminaPoints -ne "")
+        {
+            [int]$sp = [convert]::ToInt16($dino.wildLevels.stamina, 10)
+            if ($sp -lt $MinStaminaPoints)
+            {
+                continue
+            }
+        }
+
+        if ($MinOxygenPoints -ne "")
+        {
+            [int]$op = [convert]::ToInt16($dino.wildLevels.oxygen, 10)
+            if ($op -lt $MinOxygenPoints)
+            {
+                continue
+            }
+        }
+
+        if ($MinFoodPoints -ne "")
+        {
+            [int]$fp = [convert]::ToInt16($dino.wildLevels.food, 10)
+            if ($fp -lt $MinFoodPoints)
+            {
+                continue
+            }
+        }
+
+        if ($MinWeightPoints -ne "")
+        {
+            [int]$wp = [convert]::ToInt16($dino.wildLevels.weight, 10)
+            if ($wp -lt $MinWeightPoints)
+            {
+                continue
+            }
+        }
+
+        if ($MinMeleePoints -ne "")
+        {
+            [int]$mp = [convert]::ToInt16($dino.wildLevels.melee, 10)
+            if ($mp -lt $MinMeleePoints)
+            {
+                continue
+            }
+        }
 
         if ($dino.female -eq $true)
         {
