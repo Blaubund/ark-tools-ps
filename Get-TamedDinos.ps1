@@ -36,6 +36,12 @@ param(
     [Parameter()]
     [int] $MaxLevel,
 
+    [Parameter()]
+    [string] $NearDino,
+
+    [Parameter()]
+    [int] $Range,
+
     [switch] $ShowTotalsOnly,
 
     [switch] $ShowXYZ,
@@ -74,6 +80,30 @@ if ($Gender -ne "")
     else
     {
         $Gender = "M"
+    }
+}
+
+if ($NearDino -ne "")
+{
+    if ($Range -eq "")
+    {
+        $Range = $defaultRange
+    }
+
+    $dino = .\Get-TamedDinos.ps1 -Name $NearDino | where { $_ -match $NearDino }
+    if ($dino -ne $null)
+    {
+        Write-Verbose "Found dino $($NearDino):"
+        Write-Verbose "$dino"
+        $temp = $dino -match "lat (.*), lon (.*) \("
+        $nearLat = [math]::Round($matches[1], 1)
+        $nearLon = [math]::Round($matches[2], 1)
+        Write-Verbose "$nearLat, $nearLon"
+    }
+    else
+    {
+        Write-Output "Cannot find dino named $NearDino"
+        exit
     }
 }
 
@@ -181,6 +211,21 @@ foreach ($class in $dinoClasses)
             Write-Verbose "Level not within specified range, skipping..."
             continue
         }
+
+
+        if ($dino.female -eq $true)
+        {
+            $dinoGender = "F"
+        }
+        else
+        {
+            $dinoGender = "M"
+        }
+
+        if ($Gender -ne "" -and $Gender -ne $dinoGender)
+        {
+            continue
+        }
  
         if ($dino.colorSetIndices -ne $null)
         {
@@ -202,18 +247,25 @@ foreach ($class in $dinoClasses)
             }
         }
 
-        if ($dino.female -eq $true)
-        {
-            $dinoGender = "F"
-        }
-        else
-        {
-            $dinoGender = "M"
-        }
+        $lat = [math]::Round($dino.location.lat, 1)
+        $lon = [math]::Round($dino.location.lon, 1)
 
-        if ($Gender -ne "" -and $Gender -ne $dinoGender)
+        if ($NearDino -ne "")
         {
-            continue
+            $diffLat = [math]::Abs($lat - $nearLat)
+            $diffLon = [math]::Abs($lon - $nearLon)
+            Write-Verbose "diffLat: $diffLat"
+            Write-Verbose "diffLon: $diffLon"
+            if ($diffLat  -gt $Range)
+            {
+                Write-Verbose "Latitude not within range of $NearDino"
+                continue
+            }
+            if ($diffLon -gt $Range)
+            {
+                Write-Verbose "Longitude not within range of $NearDino"
+                continue
+            }
         }
 
         if ($ShowXYZ -eq $true)
@@ -225,8 +277,6 @@ foreach ($class in $dinoClasses)
         }
         else
         {
-            $lat = [math]::Round($dino.location.lat, 1)
-            $lon = [math]::Round($dino.location.lon, 1)
             $location = "lat $lat, lon $lon"
         }
         Write-Verbose "Location: $location"
