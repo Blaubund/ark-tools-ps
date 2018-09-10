@@ -3,7 +3,9 @@
 #   .\Get-TamedDinos.ps1 -Name Connor
 #   .\Get-TamedDinos.ps1 -Species Rex -MinLevel 100
 #   .\Get-TamedDinos.ps1 -Species Saber -Gender Female
-#   .\Get-TamedDinos.ps1 -Species lantern -MinUberStat 40
+#   .\Get-TamedDinos.ps1 -Species crab -MinUberStat 30
+#   .\Get-TamedDinos.ps1 -Species wolf -MinMeleePoints 30
+#   .\Get-TamedDinos.ps1 -NearDino Rocky -Range 5
 #
 # To do: 
 #   - Automatically detect where the ARK saved game files are as a default
@@ -15,7 +17,6 @@
 #      o Wild levels in various stats
 #      o Imprinter
 #      o Imprinting quality
-#   - Change default minimum level to 1 (i.e. don't use the default wild filter)
 
 [CmdletBinding(SupportsShouldProcess=$true)]
 param(
@@ -244,39 +245,65 @@ foreach ($class in $dinoClasses)
             continue
         }
 
-        if ($MinUberStat -ne "")
+        # Calculate stats
+        if ($dino.wildLevels.health -ne $null)
         {
             [int]$hp = [convert]::ToInt16($dino.wildLevels.health, 10)
+        }
+
+        if ($dino.wildLevels.stamina -ne $null)
+        {
+            [int]$sp = [convert]::ToInt16($dino.wildLevels.stamina, 10)
+        }
+
+        if ($dino.wildLevels.oxygen -ne $null)
+        {
+            [int]$op = [convert]::ToInt16($dino.wildLevels.oxygen, 10)
+        }
+
+        if ($dino.wildLevels.food -ne $null)
+        {
+            [int]$fp = [convert]::ToInt16($dino.wildLevels.food, 10)
+        }
+
+        if ($dino.wildLevels.weight -ne $null)
+        {
+            [int]$wp = [convert]::ToInt16($dino.wildLevels.weight, 10)
+        }
+
+        if ($dino.wildLevels.melee -ne $null)
+        {
+            [int]$mp = [convert]::ToInt16($dino.wildLevels.melee, 10)
+        }
+
+        # Check for uber stat, if specified
+        if ($MinUberStat -ne "")
+        {
             if ($hp -ge $MinUberStat)
             {
                 $hasUberStat = $true
             }
 
-            [int]$sp = [convert]::ToInt16($dino.wildLevels.stamina, 10)
             if ($sp -ge $MinUberStat)
             {
                 $hasUberStat = $true
             }
 
-            [int]$op = [convert]::ToInt16($dino.wildLevels.oxygen, 10)
             if ($op -ge $MinUberStat)
             {
                 $hasUberStat = $true
             }
 
-            [int]$fp = [convert]::ToInt16($dino.wildLevels.food, 10)
             if ($fp -ge $MinUberStat)
             {
                 $hasUberStat = $true
             }
 
-            [int]$wp = [convert]::ToInt16($dino.wildLevels.weight, 10)
             if ($wp -ge $MinUberStat)
             {
                 $hasUberStat = $true
             }
 
-            [int]$mp = [convert]::ToInt16($dino.wildLevels.melee, 10)
             if ($mp -ge $MinUberStat)
             {
                 $hasUberStat = $true
@@ -291,7 +318,6 @@ foreach ($class in $dinoClasses)
         # Check minimum stats
         if ($MinHealthPoints -ne "")
         {
-            [int]$hp = [convert]::ToInt16($dino.wildLevels.health, 10)
             if ($hp -lt $MinHealthPoints)
             {
                 continue
@@ -300,7 +326,6 @@ foreach ($class in $dinoClasses)
 
         if ($MinStaminaPoints -ne "")
         {
-            [int]$sp = [convert]::ToInt16($dino.wildLevels.stamina, 10)
             if ($sp -lt $MinStaminaPoints)
             {
                 continue
@@ -309,7 +334,6 @@ foreach ($class in $dinoClasses)
 
         if ($MinOxygenPoints -ne "")
         {
-            [int]$op = [convert]::ToInt16($dino.wildLevels.oxygen, 10)
             if ($op -lt $MinOxygenPoints)
             {
                 continue
@@ -318,7 +342,6 @@ foreach ($class in $dinoClasses)
 
         if ($MinFoodPoints -ne "")
         {
-            [int]$fp = [convert]::ToInt16($dino.wildLevels.food, 10)
             if ($fp -lt $MinFoodPoints)
             {
                 continue
@@ -327,7 +350,6 @@ foreach ($class in $dinoClasses)
 
         if ($MinWeightPoints -ne "")
         {
-            [int]$wp = [convert]::ToInt16($dino.wildLevels.weight, 10)
             if ($wp -lt $MinWeightPoints)
             {
                 continue
@@ -336,7 +358,6 @@ foreach ($class in $dinoClasses)
 
         if ($MinMeleePoints -ne "")
         {
-            [int]$mp = [convert]::ToInt16($dino.wildLevels.melee, 10)
             if ($mp -lt $MinMeleePoints)
             {
                 continue
