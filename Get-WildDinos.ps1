@@ -210,6 +210,18 @@ foreach ($class in $dinoClasses)
 
     Write-Verbose "Class: $dinoClass, Name: $dinoName, File: $dinoFile"
 
+    # Temporary substitutions since these don't have names yet
+    if ($dinoName -eq "MegaCrab")
+    {
+        $dinoName = "Alpha Crab"
+        Write-Verbose "Dino name now $dinoName"
+    }
+    if ($dinoName -eq "MegaBasilisk")
+    {
+        $dinoName = "Alpha Basilisk"
+        Write-Verbose "Dino name now $dinoName"
+    }
+
     if ($dinoName -notmatch $Species)
     {
         Write-Verbose "Species not a match, skipping..."
