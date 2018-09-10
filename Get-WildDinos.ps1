@@ -8,6 +8,7 @@
 #   .\Get-WildDinos.ps1 -ShowTotalsOnly
 #   .\Get-WildDinos.ps1 -Species wolf -Map Aberration -MinHealthPoints 20
 #   .\Get-WildDinos.ps1 -Species raptor -NearDino Rocky -Range 20
+#   .\Get-WildDinos.ps1 -Species lantern -MinUberStat 30
 #
 # To do: 
 #   - Automatically detect where the ARK saved game files are as a default
@@ -39,6 +40,9 @@ param(
 
     [Parameter()]
     [int] $Range,
+
+    [Parameter()]
+    [int] $MinUberStat,
 
     [Parameter()]
     [int] $MinHealthPoints,
@@ -224,12 +228,57 @@ foreach ($class in $dinoClasses)
     foreach ($dino in $wildDinos)
     {
         $colors = ""
+        $hasUberStat = $false
 
         [int]$dinoLevel = [convert]::ToInt16($dino.baseLevel, 10)
 
         if ($dinoLevel -lt $MinLevel -or $dinoLevel -gt $MaxLevel)
         {
             continue
+        }
+
+        if ($MinUberStat -ne "")
+        {
+            [int]$hp = [convert]::ToInt16($dino.wildLevels.health, 10)
+            if ($hp -ge $MinUberStat)
+            {
+                $hasUberStat = $true
+            }
+
+            [int]$sp = [convert]::ToInt16($dino.wildLevels.stamina, 10)
+            if ($sp -ge $MinUberStat)
+            {
+                $hasUberStat = $true
+            }
+
+            [int]$op = [convert]::ToInt16($dino.wildLevels.oxygen, 10)
+            if ($op -ge $MinUberStat)
+            {
+                $hasUberStat = $true
+            }
+
+            [int]$fp = [convert]::ToInt16($dino.wildLevels.food, 10)
+            if ($fp -ge $MinUberStat)
+            {
+                $hasUberStat = $true
+            }
+
+            [int]$wp = [convert]::ToInt16($dino.wildLevels.weight, 10)
+            if ($wp -ge $MinUberStat)
+            {
+                $hasUberStat = $true
+            }
+
+            [int]$mp = [convert]::ToInt16($dino.wildLevels.melee, 10)
+            if ($mp -ge $MinUberStat)
+            {
+                $hasUberStat = $true
+            }
+
+            if ($hasUberStat -eq $false)
+            {
+                continue
+            }
         }
 
         # Check minimum stats
@@ -327,7 +376,7 @@ foreach ($class in $dinoClasses)
         if ($NearDino -ne "")
         {
             $diffLat = [math]::Abs($lat - $nearLat)
-            $diffLon = [math]::Abs($lon - $diffLon)
+            $diffLon = [math]::Abs($lon - $nearLon)
             Write-Verbose "diffLat: $diffLat"
             Write-Verbose "diffLon: $diffLon"
             if ($diffLat  -gt $Range)
