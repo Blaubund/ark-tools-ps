@@ -168,6 +168,9 @@ Write-Verbose "Min melee points: $MinMeleePoints"
 Write-Verbose "Save game file: $SavedGameFile"
 Write-Verbose "Destination folder: $DestinationFolder"
 
+# Clean up folder before extracting
+Remove-Item -Path $DestinationFolder\* -Filter *.json
+
 # Read raw saved game file using ark-tools.exe
 Write-Output "Extracting tamed dino details..."
 .\ark-tools.exe tamed $SavedGameFile $DestinationFolder
