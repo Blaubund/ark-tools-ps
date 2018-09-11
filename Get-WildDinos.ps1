@@ -14,9 +14,7 @@
 # To do: 
 #   - Automatically detect where the ARK saved game files are as a default
 #   - Automatically create destination folder if it doesn't exist
-#   - Clear out the working folder before running ark-tools.exe
 #   - Search for specific colors (did I do this already?)
-#   - Search for minimum pre-tame stats (e.g. 20 points in Health)
 
 
 [CmdletBinding(SupportsShouldProcess=$true)]
@@ -78,6 +76,9 @@ param(
 
 . ".\Config.ps1"
 . ".\DinoColors.ps1"
+
+$ignoredDinos = Get-Content ".\IgnoredDinos.txt" | where { $_ -notmatch "#" } 
+Write-Verbose "Ignoring dinos: $ignoredDinos"
 
 if ($Map -eq "")
 {
@@ -223,6 +224,13 @@ foreach ($class in $dinoClasses)
     {
         $dinoName = "Alpha Basilisk"
         Write-Verbose "Dino name now $dinoName"
+    }
+
+    # Skip ignored dinos
+    if ($ignoredDinos.Contains($dinoName))
+    {
+        Write-Verbose "Ignoring dino $dinoName"
+        continue
     }
 
     if ($dinoName -notmatch $Species)

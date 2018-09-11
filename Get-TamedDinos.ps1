@@ -10,11 +10,8 @@
 # To do: 
 #   - Automatically detect where the ARK saved game files are as a default
 #   - Automatically create destination folder if it doesn't exist
-#   - Clear out the working folder before running ark-tools.exe
-#   - Add filter for:
+#   - Add filter and output for:
 #      o Owner
-#      o Base Level
-#      o Wild levels in various stats
 #      o Imprinter
 #      o Imprinting quality
 

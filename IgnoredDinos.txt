@@ -1,0 +1,9 @@
+#Ignore the following dinos (untamable generally, but you can add/remove whatever you want in here)
+Lightbug
+Salmon
+Trilobite
+Piranha
+Lamprey
+Coel
+Dragonfly
+Eel
