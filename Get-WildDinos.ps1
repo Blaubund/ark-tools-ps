@@ -15,6 +15,7 @@
 #   - Automatically detect where the ARK saved game files are as a default
 #   - Automatically create destination folder if it doesn't exist
 #   - Search for specific colors (did I do this already?)
+#   - Add a flag to show just the names of all found dinos
 
 
 [CmdletBinding(SupportsShouldProcess=$true)]
@@ -204,52 +205,49 @@ Write-Verbose "$($dinoClasses.Count) dino classes exist"
 foreach ($class in $dinoClasses)
 {
     $dinoClass = $class.cls
-    $dinoName = $class.Name
+    $dinoClassName = $class.Name
     $dinoFile = "$dinoClass.json"
+    $headerWritten = $false
 
-    if ($dinoName -match "_Character")
+    if ($dinoClassName -match "_Character")
     {
-        $dinoName = $dinoName -split "_Character" | Select-Object -First 1
+        $dinoClassName = $dinoClassName -split "_Character" | Select-Object -First 1
     }
 
-    Write-Verbose "Class: $dinoClass, Name: $dinoName, File: $dinoFile"
+    Write-Verbose "Class: $dinoClass, Name: $dinoClassName, File: $dinoFile"
 
     # Temporary substitutions since these don't have names yet
-    if ($dinoName -eq "MegaCrab")
+    if ($dinoClassName -eq "MegaCrab")
     {
-        $dinoName = "Alpha Crab"
-        Write-Verbose "Dino name now $dinoName"
+        $dinoClassName = "Alpha Crab"
+        Write-Verbose "Dino name now $dinoClassName"
     }
-    if ($dinoName -eq "MegaBasilisk")
+    if ($dinoClassName -eq "MegaBasilisk")
     {
-        $dinoName = "Alpha Basilisk"
-        Write-Verbose "Dino name now $dinoName"
+        $dinoClassName = "Alpha Basilisk"
+        Write-Verbose "Dino name now $dinoClassName"
     }
 
     # Skip ignored dinos
-    if ($ignoredDinos.Contains($dinoName))
+    if ($ignoredDinos.Contains($dinoClassName))
     {
-        Write-Verbose "Ignoring dino $dinoName"
+        Write-Verbose "Ignoring dino $dinoClassName"
         continue
     }
 
-    if ($dinoName -notmatch $Species)
+    if ($dinoClassName -notmatch $Species)
     {
         Write-Verbose "Species not a match, skipping..."
         continue
     }
-    elseif ($AlphasOnly -eq $true -and $dinoName -notmatch "Alpha")
+    elseif ($AlphasOnly -eq $true -and $dinoClassName -notmatch "Alpha")
     {
         Write-Verbose "Not an alpha, skipping..."
         continue
     }
 
-    Write-Output ""
-    Write-Output "$dinoName"
-    Write-Output "------------------------------------"
-
     $wildDinos = Get-Content "$DestinationFolder\$dinoFile" -Raw | ConvertFrom-Json
-    Write-Verbose "$($wildDinos.Count) $dinoName found total"
+    Write-Verbose "$($wildDinos.Count) $dinoClassName found total"
 
     if ($ShowTotalsOnly -eq $true)
     {
@@ -454,6 +452,14 @@ foreach ($class in $dinoClasses)
             $location = "lat $lat, lon $lon"
         }
         Write-Verbose "Location: $location"
+
+        if ($headerWritten -ne $true)
+        {
+            Write-Output ""
+            Write-Output "$dinoClassName"
+            Write-Output "------------------------------------"
+            $headerWritten = $true
+        }
 
         Write-Output "Level $dinoLevel $dinoGender $location (H: $($dino.wildLevels.health) S: $($dino.wildLevels.stamina) O: $($dino.wildLevels.oxygen) F: $($dino.wildLevels.food) W: $($dino.wildLevels.weight) M: $($dino.wildLevels.melee) S: $($dino.wildLevels.speed)) {$colors}"
     }

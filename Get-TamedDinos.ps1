@@ -179,28 +179,25 @@ Write-Verbose "$($dinoClasses.Count) dino classes exist"
 foreach ($class in $dinoClasses)
 {
     $dinoClass = $class.cls
-    $dinoName = $class.Name
+    $dinoClassName = $class.Name
     $dinoFile = "$dinoClass.json"
+    $headerWritten = $false
 
-    if ($dinoName -match "_Character")
+    if ($dinoClassName -match "_Character")
     {
-        $dinoName = $dinoName -split "_Character" | Select-Object -First 1
+        $dinoClassName = $dinoClassName -split "_Character" | Select-Object -First 1
     }
 
-    Write-Verbose "Class: $dinoClass, Name: $dinoName, File: $dinoFile"
+    Write-Verbose "Class: $dinoClass, Name: $dinoClassName, File: $dinoFile"
 
-    if ($dinoName -notmatch $Species)
+    if ($dinoClassName -notmatch $Species)
     {
         Write-Verbose "Species not a match, skipping..."
         continue
     }
 
-    Write-Output ""
-    Write-Output "$dinoName"
-    Write-Output "------------------------------------"
-
     $tamedDinos = Get-Content "$DestinationFolder\$dinoFile" -Raw | ConvertFrom-Json
-    Write-Verbose "$($tamedDinos.Count) $dinoName found total"
+    Write-Verbose "$($tamedDinos.Count) $dinoClassName found total"
 
     if ($ShowTotalsOnly -eq $true)
     {
@@ -431,6 +428,14 @@ foreach ($class in $dinoClasses)
             $location = "lat $lat, lon $lon"
         }
         Write-Verbose "Location: $location"
+
+        if ($headerWritten -ne $true)
+        {
+            Write-Output ""
+            Write-Output "$dinoClassName"
+            Write-Output "------------------------------------"
+            $headerWritten = $true
+        }
             
         Write-Output "$dinoName, Level $dinoLevel ($dinoBaseLevel) $dinoGender $location (H: $($dino.wildLevels.health) S: $($dino.wildLevels.stamina) O: $($dino.wildLevels.oxygen) F: $($dino.wildLevels.food) W: $($dino.wildLevels.weight) M: $($dino.wildLevels.melee) S: $($dino.wildLevels.speed)) {$colors}"
     }
