@@ -62,6 +62,8 @@ param(
     [Parameter()]
     [int] $MinMeleePoints,
 
+    [switch] $ShowSpeciesOnly,
+
     [switch] $ShowTotalsOnly,
 
     [switch] $ShowXYZ,
@@ -189,6 +191,12 @@ foreach ($class in $dinoClasses)
     }
 
     Write-Verbose "Class: $dinoClass, Name: $dinoClassName, File: $dinoFile"
+
+    if ($ShowSpeciesOnly -eq $true)
+    {
+        Write-Output "$dinoClassName"
+        continue
+    }
 
     if ($dinoClassName -notmatch $Species)
     {

@@ -64,6 +64,8 @@ param(
 
     [switch] $AlphasOnly,
 
+    [switch] $ShowSpeciesOnly,
+
     [switch] $ShowTotalsOnly,
 
     [switch] $ShowXYZ,
@@ -226,6 +228,12 @@ foreach ($class in $dinoClasses)
     {
         $dinoClassName = "Alpha Basilisk"
         Write-Verbose "Dino name now $dinoClassName"
+    }
+
+    if ($ShowSpeciesOnly -eq $true)
+    {
+        Write-Output "$dinoClassName"
+        continue
     }
 
     # Skip ignored dinos
