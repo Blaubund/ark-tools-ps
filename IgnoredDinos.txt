@@ -9,3 +9,7 @@ Dragonfly
 Eel
 # Seeker:
 Pteroteuthis_Char_BP_C
+# Nameless:
+ChupaCabra
+# Reaper King:
+Xenomorph
