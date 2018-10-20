@@ -24,7 +24,7 @@ $DinoColors = @(
     "D. Red",
     "L. Orange",
     "D. Orange",
-    "L. Yello",
+    "L. Yellow",
     "D. Yellow",
     "L. Green",
     "M. Green",

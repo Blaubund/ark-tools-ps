@@ -1,8 +1,8 @@
 #$defaultMap = "Island"
 #$defaultMap = "SE"
-#$defaultMap = "Ragnarok"
+$defaultMap = "Ragnarok"
 #$defaultMap = "Center"
-$defaultMap = "Aberration"
+#$defaultMap = "Aberration"
 $defaultSpecies = ".*"
 $defaultRange = 10
 $defaultWildMinLevel = 130

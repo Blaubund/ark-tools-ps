@@ -1,12 +1,20 @@
 #Ignore the following dinos (untamable generally, but you can add/remove whatever you want in here)
 Lightbug
-Salmon
+Sabertooth Salmon
 Trilobite
 Piranha
 Lamprey
 Coel
 Dragonfly
 Eel
+Meganeura
+Titanomyrma Drone
+Titanomyrma Soldier
+Cnidaria
+Leech
+Diseased Leech
+Eurypterid
+Megapiranha
 # Seeker:
 Pteroteuthis_Char_BP_C
 # Nameless:
