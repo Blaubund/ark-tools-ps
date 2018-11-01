@@ -241,7 +241,15 @@ foreach ($class in $dinoClasses)
         }
         Write-Verbose "Dino extra level: $dinoExtraLevel"
 
-        [int]$dinoLevel = $dinoBaseLevel + $dinoExtraLevel
+        try
+        {
+            [int]$dinoLevel = $dinoBaseLevel + $dinoExtraLevel
+        }
+        catch
+        {
+            $dinoLevel = 0
+        }
+        
         Write-Verbose "Dino level: $dinoLevel"
 
         if ($dinoLevel -lt $MinLevel -or $dinoLevel -gt $MaxLevel)

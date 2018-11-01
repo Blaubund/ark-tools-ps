@@ -15,7 +15,6 @@
 #   - Automatically detect where the ARK saved game files are as a default
 #   - Automatically create destination folder if it doesn't exist
 #   - Search for specific colors (did I do this already?)
-#   - Add a flag to show just the names of all found dinos
 
 
 [CmdletBinding(SupportsShouldProcess=$true)]
@@ -267,7 +266,14 @@ foreach ($class in $dinoClasses)
         $colors = ""
         $hasUberStat = $false
 
-        [int]$dinoLevel = [convert]::ToInt16($dino.baseLevel, 10)
+        try
+        {
+            [int]$dinoLevel = [convert]::ToInt16($dino.baseLevel, 10)
+        }
+        catch
+        {
+            $dinoLevel = 0
+        }
 
         if ($dinoLevel -lt $MinLevel -or $dinoLevel -gt $MaxLevel)
         {
