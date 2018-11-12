@@ -1,8 +1,9 @@
 #$defaultMap = "Island"
 #$defaultMap = "SE"
-$defaultMap = "Ragnarok"
+#$defaultMap = "Ragnarok"
 #$defaultMap = "Center"
 #$defaultMap = "Aberration"
+$defaultMap = "Extinction"
 $defaultSpecies = ".*"
 $defaultRange = 10
 $defaultWildMinLevel = 130
@@ -19,5 +20,6 @@ $defaultSaveFiles = @{
     "Ragnarok" =    "$($savedFolder)RagnarokSavedArksLocal\Ragnarok.ark"
     "Aberration" =  "$($savedFolder)Aberration_PSavedArksLocal\Aberration_P.ark"
     "Center" =      "$($savedFolder)TheCenterSavedArksLocal\TheCenter.ark"
+    "Extinction" =  "$($savedFolder)ExtinctionSavedArksLocal\Extinction.ark"
 }
 
